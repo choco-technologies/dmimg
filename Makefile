@@ -1,6 +1,6 @@
 # #############################################################################
 # 
-# 	This is an example of a simple application module.
+# 	dmimg - the image decoder interface (a library module).
 #
 # #############################################################################
 DMOD_DIR=@DMOD_DIR@
@@ -30,7 +30,7 @@ DMOD_CSOURCES=src/dmimg.c
 DMOD_CXXSOURCES=
 
 # The list of include directories
-DMOD_INC_DIRS=
+DMOD_INC_DIRS=include
 
 # The list of libraries to link
 DMOD_LIBS=
@@ -46,4 +46,4 @@ DMOD_MAL_IMPLS=
 # -----------------------------------------------------------------------------
 #   Include the dmod app makefile
 # -----------------------------------------------------------------------------
-include $(DMOD_DMF_APP_FILE_PATH)
+include $(DMOD_DMF_LIB_FILE_PATH)

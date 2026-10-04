@@ -1,10 +1,13 @@
 # dmimg Documentation
 
-Welcome to the dmimg module documentation.
+dmimg is the DMOD image decoder interface: decoders of image formats are
+plugins (dmf modules implementing the dmimg DIF), programs read images
+through the dmimg API.
 
 ## Contents
 
-- **[api-reference.md](api-reference.md)** - Command-line usage and behavior
+- **[api-reference.md](api-reference.md)** - the API for programs and the DIF for decoders
+- **[writing-a-decoder.md](writing-a-decoder.md)** - a decoder plugin, step by step
 
 View documentation using `dmf-man`:
 
