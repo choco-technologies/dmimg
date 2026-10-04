@@ -1,12 +1,21 @@
 set(DMOD_MODULE_NAME        test_dmimg)
 set(DMOD_MODULE_VERSION     ${PROJECT_VERSION})
 set(DMOD_AUTHOR_NAME        "Patryk Kubiak")
-set(DMOD_STACK_SIZE         1024)
+set(DMOD_STACK_SIZE         4096)
 set(DMOD_PRIORITY           0)
 
 dmod_add_test(${DMOD_MODULE_NAME} ${DMOD_MODULE_VERSION}
     dmimg_test.c
 )
+
+target_link_libraries(${DMOD_MODULE_NAME} dmimg_if)
+
+target_compile_definitions(${DMOD_MODULE_NAME} PRIVATE
+    DMIMG_TEST_DIR="${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+# The decoder the test loads
+add_subdirectory(traw)
 
 # Register the test module with ctest - this replays the same two steps CI
 # runs (see .github/templates/ci.yml.template): install the test module's

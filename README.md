@@ -3,11 +3,55 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/choco-technologies/dmimg/actions/workflows/ci.yml/badge.svg)](https://github.com/choco-technologies/dmimg/actions/workflows/ci.yml)
 
-dmimg DMOD application module.
+The DMOD image decoder interface.
 
 ## Description
 
-TODO: describe what this module does.
+Every image format is a **decoder plugin**: a separate dmf module that
+implements the dmimg DIF - `dmimg_png`, `dmimg_jpeg`, `dmimg_bmp`, ... A
+plugin can live in any repository, public or private; a system contains the
+decoders it needs, and a program that reads images does not depend on any of
+them.
+
+A program uses the dmimg API:
+
+```c
+#include "dmimg.h"
+
+static int put(void* ctx, const dmimg_block_t* block)
+{
+    /* block->pixels: block->width x block->height 0xAARRGGBB pixels at
+     * block->x, block->y of the image */
+    return 0;
+}
+
+dmimg_info_t info;
+dmimg_t image = dmimg_open_file("/sd/photo.jpg", &info, NULL);
+if (image != NULL)
+{
+    uint8_t scale = (info.scales & DMIMG_SCALE(2)) ? 2 : 0;     /* 1/4 if the decoder can */
+    dmimg_decode(image, scale, put, NULL);
+    dmimg_close(image);
+}
+```
+
+- `dmimg_open()` reads the first bytes of the image and asks the enabled
+  decoders which of them recognizes it; `dmimg_open_file()` also loads the
+  decoder named after the file's extension (`dmimg_jpeg` for `.jpg`) when no
+  enabled one knows the file.
+- Images are decoded in **blocks** of 0xAARRGGBB pixels - rows, or the
+  8x8 / 16x16 blocks of JPEG. Neither the decoder nor dmimg keeps the whole
+  image: what to do with the pixels (convert, scale, draw) is the program's.
+- A decoder may decode at **1/2, 1/4, 1/8** of the size directly (JPEG): a
+  large photo for a small screen costs a fraction of decoding it whole.
+
+dmimg is used by **todmvi**, which converts images into dmview's `.dmvi`
+files.
+
+## Documentation
+
+- [docs/api-reference.md](docs/api-reference.md) - the API and the DIF
+- [docs/writing-a-decoder.md](docs/writing-a-decoder.md) - a decoder plugin, step by step
 
 ## Building
 
@@ -31,7 +75,7 @@ make DMOD_MODE=DMOD_MODULE DMOD_DIR=/path/to/dmod
 
 ## Testing
 
-Tests are built automatically alongside the module (see `tests/`). Once built,
+The tests use a decoder of their own, `dmimg_traw` (tests/traw/). Once built,
 run them with `ctest`:
 
 ```bash
@@ -39,60 +83,6 @@ cd build
 ctest --output-on-failure
 ```
 
-`ctest` installs the test module's dependencies with `dmf-get` and then runs
-it through `dmod_loader`. To run it manually instead:
-
-```bash
-export DMOD_DMF_DIR=$(pwd)/build/dmf
-dmf-get install -d ${DMOD_DMF_DIR}/test_dmimg-local.dmd -y
-dmod_loader build/dmf/test_dmimg.dmf
-```
-
-## Usage
-
-<TBD>
-
-This application module can be loaded and executed using the DMOD loader:
-
-```bash
-dmod_loader /path/to/dmimg.dmf
-```
-
-## API
-
-`dmimg` is loaded and executed through the DMOD loader - it does not
-expose a callable module API of its own. See
-[docs/api-reference.md](docs/api-reference.md) for its command-line
-arguments and exit codes.
-
-## Documentation
-
-See the `docs/` directory:
-
-- **[api-reference.md](docs/api-reference.md)** - Command-line usage
-
-View documentation using `dmf-man dmimg`.
-
-## Project Structure
-
-```
-dmimg/
-├── docs/              # Documentation (markdown format)
-├── src/
-│   └── dmimg.c
-├── tests/
-│   ├── CMakeLists.txt
-│   └── dmimg_test.c
-├── CMakeLists.txt
-├── Makefile
-├── dmimg.dmr
-└── manifest.dmm
-```
-
-## Author
-
-Patryk Kubiak
-
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE).
