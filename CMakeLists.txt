@@ -24,13 +24,13 @@ set(DMOD_BUILD_EXAMPLES OFF CACHE BOOL "Build examples")
 set(DMOD_BUILD_TOOLS OFF CACHE BOOL "Build tools")
 set(DMOD_BUILD_TEMPLATES OFF CACHE BOOL "Build templates")
 
-# project() before FetchContent_MakeAvailable(dmod): the compiler test runs
-# before dmod's tools-cfg.cmake adds its include directories (ARG_MAX on CI)
+# FetchContent_MakeAvailable(dmod) before project(): dmod's tools-cfg.cmake
+# sets the compiler of DMOD_TOOLS_NAME (the cross compiler of a release build)
+FetchContent_MakeAvailable(dmod)
+
 project(dmimg VERSION ${DMOD_MODULE_VERSION}
     DESCRIPTION "DMOD image decoder interface"
     LANGUAGES C CXX)
-
-FetchContent_MakeAvailable(dmod)
 
 set(DMOD_DIR ${dmod_SOURCE_DIR} CACHE PATH "DMOD source directory")
 set(DMOD_SCRIPTS_DIR ${DMOD_DIR}/scripts CACHE PATH "DMOD scripts directory")
